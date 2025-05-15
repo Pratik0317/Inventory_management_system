@@ -58,14 +58,22 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Product updateProduct(Long id, Product productDetails) {
+    public Product updateProduct(Long id, ProductRequest productDetails) {
         Product product = productRepo.findById(id).orElseThrow(()->
                 new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found with id: "+id));
+
+        Supplier supplier = supplierRepo.findById(productDetails.getSupplierId()).orElseThrow(()->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, "Supplier not found with id: "+productDetails.getSupplierId()+"not found"));
+
+        Category category = categoryRepo.findById(productDetails.getCategoryId()).orElseThrow(()->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, "Category with id: "+productDetails.getCategoryId()+" not found"));
 
         product.setName(productDetails.getName());
         product.setDescription(productDetails.getDescription());
         product.setPrice(productDetails.getPrice());
         product.setQuantity(productDetails.getQuantity());
+        product.setSupplier(supplier);
+        product.setCategory(category);
         product.setSku(productDetails.getSku());
         return productRepo.save(product);
     }

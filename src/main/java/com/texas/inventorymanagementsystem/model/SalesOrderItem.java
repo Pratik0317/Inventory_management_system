@@ -1,8 +1,11 @@
 package com.texas.inventorymanagementsystem.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import lombok.Data;
 
 @Entity
+@Data
 public class SalesOrderItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

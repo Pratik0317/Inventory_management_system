@@ -1,5 +1,6 @@
 package com.texas.inventorymanagementsystem.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -17,5 +18,6 @@ public class PurchaseOrder {
     private LocalDateTime orderDate;
     private String status;
     @OneToMany(mappedBy = "purchaseOrder")
+    @JsonIgnore
     private List<PurchaseOrderItem> items;
 }

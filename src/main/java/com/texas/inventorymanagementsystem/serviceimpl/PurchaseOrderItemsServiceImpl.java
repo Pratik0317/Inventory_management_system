@@ -58,9 +58,16 @@ public class PurchaseOrderItemsServiceImpl implements PurchaseOrderItemsService 
 
         PurchaseOrderItem existingPurchaseOrderItem = purchaseOrderItemRepo.findById(id).orElseThrow(()->
                 new ResponseStatusException(HttpStatus.NOT_FOUND,"Purchase OrderItem with id "+id+" not found"));
+
+        Product product = productRepo.findById(purchaseOrderItem.getProduct().getId()).orElseThrow(()->
+                new ResponseStatusException(HttpStatus.NOT_FOUND,"Product with id "+purchaseOrderItem.getProduct().getId()+" not found"));
+        PurchaseOrder purchaseOrder = purchaseOrderRepo.findById(purchaseOrderItem.getPurchaseOrder().getId()).orElseThrow(()->
+                new ResponseStatusException(HttpStatus.NOT_FOUND,"PurchaseOrder with id "+purchaseOrderItem.getPurchaseOrder().getId()+" not found"));
+
+        existingPurchaseOrderItem.setPurchaseOrder(purchaseOrder);
+        existingPurchaseOrderItem.setProduct(product);
         existingPurchaseOrderItem.setQuantity(purchaseOrderItem.getQuantity());
         existingPurchaseOrderItem.setPrice(purchaseOrderItem.getPrice());
-        existingPurchaseOrderItem.setProduct(purchaseOrderItem.getProduct());
         return purchaseOrderItemRepo.save(existingPurchaseOrderItem);
     }
 

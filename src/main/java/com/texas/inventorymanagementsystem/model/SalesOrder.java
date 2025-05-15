@@ -1,5 +1,6 @@
 package com.texas.inventorymanagementsystem.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -13,7 +14,8 @@ public class SalesOrder {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private LocalDateTime orderDate;
-    private String status; // e.g., PENDING, SHIPPED, DELIVERED
+    private String status;
     @OneToMany(mappedBy = "salesOrder")
+    @JsonIgnore
     private List<SalesOrderItem> items;
 }

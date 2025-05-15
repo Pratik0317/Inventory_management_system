@@ -1,7 +1,11 @@
 package com.texas.inventorymanagementsystem.repository;
 
-import com.texas.inventorymanagementsystem.model.SalesOrderItem;
+import com.texas.inventorymanagementsystem.model.SalesOrder;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface SalesOrderRepo extends JpaRepository<SalesOrderItem,Long> {
+import java.time.LocalDateTime;
+import java.util.List;
+
+public interface SalesOrderRepo extends JpaRepository<SalesOrder,Long> {
+    List<SalesOrder> findByOrderDateBetween(LocalDateTime startDate, LocalDateTime endDate);
 }
