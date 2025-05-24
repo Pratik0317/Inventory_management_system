@@ -8,5 +8,5 @@ import java.util.Optional;
 
 public interface ProductRepo extends JpaRepository<Product, Long> {
    Optional<Product>findProductByName(String name);
-
+   List<Product> findByQuantityLessThan(int quantity);
 }

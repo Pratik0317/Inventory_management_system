@@ -13,33 +13,47 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class SalesReportService {
 
     @Autowired
-    private SalesOrderRepo salesOrderRepo;
+    private SalesOrderRepo salesOrderRepository;
 
     public List<SalesReport> generateSalesReport(LocalDateTime startDate, LocalDateTime endDate) {
 
-        List<SalesOrder> orders = salesOrderRepo.findByOrderDateBetween(startDate, endDate);
+        LocalDateTime effectiveFromDate = (startDate != null) ? startDate : LocalDateTime.of(2021, 1, 1, 0, 0);
+        LocalDateTime effectiveToDate = (endDate != null) ? endDate : LocalDateTime.now();
 
-        Map<Product, SalesReport> reportMap = new HashMap<>();
+        List<SalesOrder> orders = salesOrderRepository.findByOrderDateBetween(effectiveFromDate, effectiveToDate);
 
-        for(SalesOrder order : orders) {
-            for(SalesOrderItem item: order.getItems()) {
-                Product product = item.getProduct();
-                reportMap.computeIfAbsent(product, k -> new SalesReport());
+        Map<String, SalesReport> reportMap = new HashMap<>();
 
-                SalesReport report = reportMap.get(product);
-                report.setProductName(product.getName());
-                report.setPeriod(startDate);
-                report.setQuantitySold(report.getQuantitySold() + item.getQuantity());
+        for (SalesOrder order : orders) {
+            if (order.getItems() != null) {  // Null check for items
+                for (SalesOrderItem item : order.getItems()) {
+                    if (item.getProduct() != null) {  // Null check for product
+                        String productName = item.getProduct().getName();
 
-                report.setTotalRevenue(report.getTotalRevenue()+ (item.getPrice()*item.getQuantity()));
+                        // Use productName as key since we can't use Product entity directly
+                        reportMap.computeIfAbsent(productName,
+                                k -> {
+                                    SalesReport newReport = new SalesReport();
+                                    newReport.setProductName(productName);
+                                    newReport.setPeriod(order.getOrderDate()); // Using actual order date
+                                    return newReport;
+                                });
 
-                double profitPerItem = item.getPrice() - product.getPrice();
-                report.setProfit(report.getProfit() + (profitPerItem*item.getQuantity()));
+                        SalesReport report = reportMap.get(productName);
+                        report.setQuantitySold(report.getQuantitySold() + item.getQuantity());
+                        report.setTotalRevenue(report.getTotalRevenue() + (item.getPrice() * item.getQuantity()));
+
+                        // Calculate profit (assuming purchase price is stored in Product)
+                        double profitPerItem = item.getPrice() - item.getProduct().getPrice();
+                        report.setProfit(report.getProfit() + (profitPerItem * item.getQuantity()));
+                    }
+                }
             }
         }
 
